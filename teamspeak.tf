@@ -1,12 +1,14 @@
+variable project {}
+
 provider "google" {
   credentials = "${file("~/.gcloud/account.json")}"
-  project     = "teamspeak-201815"
+  project     = "${var.project}"
   region      = "europe-west1"
   zone        = "europe-west1-c"
 }
 
-data "google_dns_managed_zone" "julian_schwing" {
-  "name" = "julian-schwing"
+data "google_dns_managed_zone" "public" {
+  "name" = "public"
 }
 
 resource "google_compute_address" "teamspeak_ip" {
@@ -57,11 +59,11 @@ resource "google_compute_instance" "teamspeak" {
 }
 
 resource "google_dns_record_set" "teamspeak" {
-  name = "${data.google_dns_managed_zone.julian_schwing.dns_name}"
+  name = "${data.google_dns_managed_zone.public.dns_name}"
   type = "A"
   ttl  = 86400
 
-  managed_zone = "${data.google_dns_managed_zone.julian_schwing.name}"
+  managed_zone = "${data.google_dns_managed_zone.public.name}"
 
   rrdatas = ["${google_compute_address.teamspeak_ip.address}"]
 
